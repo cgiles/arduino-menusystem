@@ -293,6 +293,115 @@ protected:
 };
 
 
+class BooleanMenuItem : public MenuItem {
+public:
+    //! \brief Callback for formatting the numeric value into a String.
+    //!
+    //! \param value The value to convert.
+    //! \returns The String representation of value.
+    using FormatValueFnPtr = const String (*)(const bool value);
+
+public:
+    //! Constructor
+    //!
+    //! @param name The name of the menu item.
+    //! @param select_fn The function to call when this MenuItem is selected.
+    //! @param value Default value.
+    //! @param true_text Text used if the value is true
+    //! @param false_text Text used if the value is false
+    //! @param format_value_fn The custom formatter. If nullptr the String
+    //!                        bool formatter will be used.
+    BooleanMenuItem(const char* name, SelectFnPtr select_fn,
+                    bool value, char* true_text="true", char* false_text="false", 
+                    FormatValueFnPtr format_value_fn=nullptr);
+
+    //!
+    //! \brief Sets the custom number formatter.
+    //!
+    //! \param numberFormat the custom formatter. If nullptr the String float
+    //!                     formatter will be used (2 decimals)
+    //!
+    void set_boolean_formatter(FormatValueFnPtr format_value_fn);
+
+    bool get_value() const;
+    char* get_true_text() const;
+    char* get_false_text() const;  
+
+    void set_value(bool value);
+    void set_true_text(char* true_text);
+    void set_false_text(char* false_text);
+
+    String get_formatted_value() const;
+
+    virtual void render(MenuComponentRenderer const& renderer) const;
+
+protected:
+    virtual bool next(bool loop=false);
+    virtual bool prev(bool loop=false);
+
+    virtual Menu* select();
+
+protected:
+    float _value;
+    char* _true_text;
+    char* _false_text;
+    FormatValueFnPtr _format_value_fn;
+};
+
+class IPAddressMenuItem : public MenuItem {
+public:
+    //! \brief Callback for formatting the numeric value into a String.
+    //!
+    //! \param value The value to convert.
+    //! \returns The String representation of value.
+    using FormatValueFnPtr = const String (*)(const IPAddress value);
+
+public:
+    //! Constructor
+    //!
+    //! @param name The name of the menu item.
+    //! @param select_fn The function to call when this MenuItem is selected.
+    //! @param value Default value.
+    //! @param format_value_fn The custom formatter. If nullptr the String
+    //!                        float formatter will be used.
+    IPAddressMenuItem(const char* name, SelectFnPtr select_fn,
+                    IPAddress value, 
+                    FormatValueFnPtr format_value_fn=nullptr);
+
+    //!
+    //! \brief Sets the custom IPAddress formatter.
+    //!
+    //! \param IPAddressFormat the custom formatter. If nullptr the String float
+    //!                     formatter will be used (2 decimals)
+    //!
+    void set_IPAddress_formatter(FormatValueFnPtr format_value_fn);
+
+    IPAddress get_value() const;
+    
+    void set_value(IPAddress value);
+
+    String get_formatted_value() const;
+
+    int get_selected_part() const;
+
+    virtual void render(MenuComponentRenderer const& renderer) const;
+
+protected:
+    virtual bool next(bool loop=false);
+    virtual bool prev(bool loop=false);
+
+    virtual Menu* select();
+
+protected:
+    IPAddress _value;
+    int _selected_part;
+    FormatValueFnPtr _format_value_fn;
+    int _min_value;
+    int _max_value;
+    int _increment;
+};
+
+
 //! \brief A MenuComponent that can contain other MenuComponents.
 //!
 //! Menu represents the branch in the composite design pattern (see:
@@ -384,6 +493,8 @@ public:
     virtual void render_menu_item(MenuItem const& menu_item) const = 0;
     virtual void render_back_menu_item(BackMenuItem const& menu_item) const = 0;
     virtual void render_numeric_menu_item(NumericMenuItem const& menu_item) const = 0;
+    virtual void render_boolean_menu_item(BooleanMenuItem const& menu_item) const =0;
+    virtual void render_ipaddress_menu_item(IPAddressMenuItem const& menu_item) const =0;
     virtual void render_menu(Menu const& menu) const = 0;
 };
 

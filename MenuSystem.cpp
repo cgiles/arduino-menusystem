@@ -348,6 +348,162 @@ bool NumericMenuItem::prev(bool loop) {
 }
 
 // *********************************************************
+// BooleanMenuItem
+// *********************************************************
+
+BooleanMenuItem::BooleanMenuItem(const char* basename, SelectFnPtr select_fn,
+                                 bool value, 
+                                 char* true_text,char* false_text ,                                
+                                 FormatValueFnPtr format_value_fn)
+: MenuItem(basename, select_fn),
+  _value(value),
+  _true_text(true_text),
+  _false_text(false_text),
+  
+  _format_value_fn(format_value_fn){
+
+  };
+
+void BooleanMenuItem::set_boolean_formatter(FormatValueFnPtr format_value_fn) {
+    _format_value_fn = format_value_fn;
+}
+
+Menu* BooleanMenuItem::select() {
+    _has_focus = !_has_focus;
+
+    // Only run _select_fn when the user is done editing the value
+    if (!_has_focus && _select_fn != nullptr)
+        _select_fn(this);
+    return nullptr;
+}
+
+void BooleanMenuItem::render(MenuComponentRenderer const& renderer) const {
+    renderer.render_boolean_menu_item(*this);
+}
+
+bool BooleanMenuItem::get_value() const {
+    return _value;
+}
+
+
+
+String BooleanMenuItem::get_formatted_value() const {
+    String buffer;
+    if (_format_value_fn != nullptr)
+        buffer += _format_value_fn(_value);
+    else
+        buffer += _value?_true_text:_false_text;
+    return buffer;
+}
+
+void BooleanMenuItem::set_value(bool value) {
+    _value = value;
+}
+
+bool BooleanMenuItem::next(bool loop) {
+    _value != _value;
+    
+    return true;
+}
+
+bool BooleanMenuItem::prev(bool loop) {
+    _value != _value;
+   
+    return true;
+}
+
+// *********************************************************
+// IPAddressMenuItem
+// *********************************************************
+
+IPAddressMenuItem::IPAddressMenuItem(const char* basename, SelectFnPtr select_fn,
+                                 IPAddress value, 
+                                 FormatValueFnPtr format_value_fn)
+: MenuItem(basename, select_fn),
+  _value(value),
+  
+  _format_value_fn(format_value_fn) {
+    _min_value=0;
+    _max_value=255;
+    _increment=1;
+};
+
+void IPAddressMenuItem::set_IPAddress_formatter(FormatValueFnPtr format_value_fn) {
+    _format_value_fn = format_value_fn;
+}
+
+Menu* IPAddressMenuItem::select() {
+    if(!_has_focus){
+        _has_focus=true;
+        _selected_part=0;
+    }else if(_has_focus&&_selected_part<3){
+        _selected_part++;
+    }else if (_has_focus&&_selected_part==3){
+        _has_focus = !_has_focus;
+    }
+    
+
+    // Only run _select_fn when the user is done editing the value
+    if (!_has_focus && _select_fn != nullptr)
+        _select_fn(this);
+    return nullptr;
+}
+
+void IPAddressMenuItem::render(MenuComponentRenderer const& renderer) const {
+    renderer.render_ipaddress_menu_item(*this);
+}
+
+IPAddress IPAddressMenuItem::get_value() const {
+    return _value;
+}
+
+int IPAddressMenuItem::get_selected_part() const{
+    return _selected_part;
+}
+
+String IPAddressMenuItem::get_formatted_value() const {
+    String buffer;
+    if (_format_value_fn != nullptr)
+        buffer += _format_value_fn(_value);
+    else
+        for(int i=0;i<4;i++){
+            buffer += _value[i];
+            if(i<3)buffer+=".";
+        }
+        
+    return buffer;
+}
+
+void IPAddressMenuItem::set_value(IPAddress value) {
+    _value = value;
+}
+
+
+
+bool IPAddressMenuItem::next(bool loop) {
+    _value[_selected_part] += _increment;
+    if (_value > _max_value) {
+        if (loop)
+            _value = _min_value;
+        else
+            _value = _max_value;
+    }
+    return true;
+}
+
+bool IPAddressMenuItem::prev(bool loop) {
+    _value[_selected_part] -= _increment;
+    if (_value < _min_value) {
+        if (loop)
+            _value = _max_value;
+        else
+            _value = _min_value;
+    }
+    return true;
+}
+
+
+// *********************************************************
 // MenuSystem
 // *********************************************************
 
